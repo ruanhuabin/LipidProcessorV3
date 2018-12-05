@@ -16,7 +16,7 @@ import time
 import traceback
 import sys
 import math
-
+import re
 #import operator
 
 logger = MyLogger().getLogger()
@@ -24,12 +24,31 @@ fileHandler = logger.handlers[1]
 logFilename = fileHandler.baseFilename
 logFileHandle = open(logFilename, "w")
 
+areaScoreNameDict = {}
+
+def extractName(str):
+    items = re.split(':|\.|#|\[|\]|raw', str)
+    origName = items[2]
+    newName = items[4]
+    areaScoreNameDict[origName] = newName
+
+def renameHeader(str):
+    pos1 = str.index('[')
+    pos2 = str.index(']')
+    prefix = str[0:pos1 + 1]
+    middle = str[pos1 + 1:pos2]
+    newHeader = prefix + areaScoreNameDict[middle] + "]"
+    return newHeader
+
 def nonBlankLines(f):
     """
     Used for romoved lines that start with #
     """
     for l in f:
         line = l.rstrip()
+        if line and line[0] == '#' and line[1] == '[':
+            extractName(line)
+
         if line and line[0] != '#':
             yield line
 
@@ -38,7 +57,7 @@ def readTextFile(fileName):
     with open(fileName) as f:
         for line in nonBlankLines(f):
             content.append(line)
-    
+
     return content
 
 
@@ -97,6 +116,8 @@ def loadTextFile(fileName):
     for item in contentT:
         header = item[0]
         item.pop(0)
+
+
         dataDict[header] = item
         
     return dataDict
@@ -373,6 +394,7 @@ def runFilter(inputFileName, thresholdFileName, isFileName, outputFileName):
     wb = createExcelFile()
     lipidIon = getColumnData(dataDict, "LipidIon")
     writeDataToColumn(wb, "raw", lipidIon, 1,1)
+
     calcMz = getColumnData(dataDict, "CalcMz")
     calcMz = convertToFloat(calcMz)
     writeDataToColumn(wb, "raw", calcMz, 2,1)
@@ -413,6 +435,13 @@ def runFilter(inputFileName, thresholdFileName, isFileName, outputFileName):
     for area in allAreasData:
         
         floatArea = convertToFloat(area)
+
+        """
+        Change head name like Area[c-1] to Area[LP...] according to string "#[c-1]:LPQ11-185-4-1ul-pos-M3.raw"
+        """
+        newHeader = renameHeader(floatArea[0])
+        floatArea[0] = newHeader
+
         writeDataToColumn(wb, "raw", floatArea, columnIndex,1)
         columnIndex = columnIndex + 1
         
@@ -421,6 +450,10 @@ def runFilter(inputFileName, thresholdFileName, isFileName, outputFileName):
     for score in allMScoresData:
         
         floatScore = convertToFloat(score)
+
+        newHeader = renameHeader(floatScore[0])
+        floatScore[0] = newHeader
+
         writeDataToColumn(wb, "raw", floatScore, columnIndex,1)
         columnIndex = columnIndex + 1
         

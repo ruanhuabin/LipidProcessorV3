@@ -1,0 +1,1 @@
+{'s1-2': 'qc3-4-1ul-pos-A3', 's1-1': 'qc1-4-1ul-pos-A3', 'c-9': 'LPQ11-185-4-1ul-pos-A1', 'c-8': 'LPQ11-185-4-1ul-pos-A2', 'c-7': 'LPQ11-185-4-1ul-pos-A3', 'c-6': 'LPQ11-185-4-1ul-pos-C1', 'c-5': 'LPQ11-185-4-1ul-pos-C2', 'c-4': 'LPQ11-185-4-1ul-pos-C3', 'c-3': 'LPQ11-185-4-1ul-pos-M1', 'c-2': 'LPQ11-185-4-1ul-pos-M2', 'c-1': 'LPQ11-185-4-1ul-pos-M3'}
